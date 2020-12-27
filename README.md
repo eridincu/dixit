@@ -1,2 +1,2 @@
 # Dixit
-Dixit game with a GUI using TCP, UDP packets for communication.
+Dixit game with a GUI. The game logic will be implemented using TCP, UDP packets for server-client communication .
