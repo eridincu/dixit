@@ -5,6 +5,26 @@
 # 3. non-storytellers vote image
 # 4. goodbye
 
+message = {
+    "NAME": username, 
+    "MY_IP": own_ip, 
+    "TYPE": "", 
+    "PAYLOAD": ""
+    } 
+
+def get_packet(name, sender_ip, packet_type, payload=''):
+    packet = {
+        'NAME': name,
+        'MY_IP': sender_ip,
+        'TYPE': packet_type,
+        'PAYLOAD': payload,
+    }
+
+    return packet
+
+def conv_to_bytes(message_):
+    byte_message = (str(message_)+"\n").encode('utf-8')
+    return byte_message
 
 def listen_tcp():
     while(True):
