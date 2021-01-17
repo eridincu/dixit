@@ -5,12 +5,27 @@
 # 3. non-storytellers vote image
 # 4. goodbye
 
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QApplication, QMainWindow
+import sys
+
+def window():
+    app = QApplication(sys.argv)
+    win = QMainWindow()
+    win.setGeometry(500, 500, 500, 500)
+    win.setWindowTitle("Dixit Game!")
+
+    win.show()
+    sys.exit(app.exec_())
+
+print("hello ")
+window()
 message = {
-    "NAME": username, 
-    "MY_IP": own_ip, 
-    "TYPE": "", 
+    "NAME": "",
+    "MY_IP": "",
+    "TYPE": "",
     "PAYLOAD": ""
-    } 
+    }
 
 def get_packet(name, sender_ip, packet_type, payload=''):
     packet = {
@@ -47,7 +62,9 @@ def listen_tcp():
                             pass
                         elif dic["TYPE"] == "DECK_INIT":
 							# TO DO
-							pass
+
+
+                            pass
                         else:
                             # TO dO
                             pass
@@ -89,10 +106,10 @@ def listen_udp():
                 pass
             elif dic["TYPE"] == "POOL_IMAGES":
 				# TO DO
-				pass
-			elif dic["TYPE"] == "DESCRIPTION":
-				# TO DO
-				pass
+                pass
+            elif dic["TYPE"] == "DESCRIPTION":
+              	# TO DO
+                pass
             #print("in broadcast")
         except socket.timeout:
             pass
