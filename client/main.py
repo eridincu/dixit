@@ -6,17 +6,25 @@
 # 4. goodbye
 
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton
 import sys
 
 def window():
     app = QApplication(sys.argv)
-    win = QMainWindow()
-    win.setGeometry(500, 500, 500, 500)
-    win.setWindowTitle("Dixit Game!")
-
-    win.show()
+    main_window = QMainWindow()
+    main_window.setGeometry(500, 500, 500, 500)
+    main_window.setWindowTitle("Dixit Game!")
+    
+    
+    new_push_button = QPushButton("reset", main_window)
+    new_push_button.setGeometry(150, 20, 80, 30)
+    
+    main_window.show()
     sys.exit(app.exec_())
+
+
+def changeWindow(win):
+    win.hide()
 
 print("hello ")
 window()
