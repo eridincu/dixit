@@ -9,6 +9,25 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton
 import sys
 
+MY_LOCAL_IP = ""
+user_list = {}
+deck_list = []
+story_teller_ip = ''
+point_table = {} # {user_ip=point, ...}
+pool_images = [] # [image1,image2, ...]
+description = ''
+
+
+def find_my_local_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    IP = "127.0.0.1"
+    try:
+        s.connect(("8.8.8.8", 80))
+        IP = s.getsockname()[0]
+    finally:
+        s.close()
+    return IP
+
 def window():
     app = QApplication(sys.argv)
     main_window = QMainWindow()
@@ -66,15 +85,14 @@ def listen_tcp():
                         stri = data.decode('utf-8').rstrip()
                         dic = eval(stri)
                         if dic["TYPE"] == "DECK_IMG":
-                            # TO DO
-                            pass
+                            deck_list.append(dic["PAYLOAD"])
                         elif dic["TYPE"] == "DECK_INIT":
-							# TO DO
-
-
-                            pass
+                            # image format : image1,image2,...
+                            temp_deck = dic["PAYLOAD"]
+                            deck_image = temp_deck.split(',')
+                            for x in deck_image:
+                                deck_list.append(x)
                         else:
-                            # TO dO
                             pass
             except socket.timeout:
                 pass
@@ -100,25 +118,38 @@ def listen_udp():
             msg = result[0][0].recv(bufferSize)
             stri = msg.decode('utf-8').rstrip()
             dic = eval(stri)
-            if dic["TYPE"] == "DISCOVER":
-                # TO DO
-                pass
-            elif dic["TYPE"] == "GOODBYE":
-                # TO DO
-                pass
+            if dic["TYPE"] == "ONLINE_USERS":
+                # user list format : user_ip1,user_name1_?_user_ip2,user_name2_?_...
+                temp_user_list = dic["PAYLOAD"]
+                temp_user_info_list = temp_user_list.split('_?_')
+                for x in temp_user_info_list:
+                    temp_user_info = x.split(',')
+                    user_list[temp_user_info[0]] = temp_user_info[1]
+            elif dic["TYPE"] == "USER_LEFT":
+                # user left format : user_ip
+                left_user_ip = dic["PAYLOAD"]
+                del user_list[left_user_ip]
             elif dic["TYPE"] == "STORYTELLER":
-                # TO DO
-                pass
-            elif dic["TYPE"] == "POINTS":
-                # TO DO
-                pass
+                # story teller fomat : story_teller_ip
+                story_teller_ip = dic["PAYLOAD"]
+            elif dic["TYPE"] == "POINT_TABLE":
+                # point table format : user_ip1,point1_?_user_ip2,point2_?_...
+                temp_point_table = dic["PAYLOAD"]
+                temp_user_point_list = temp_point_table.split('_?_')
+                for x in temp_user_point_list:
+                    temp_user_info = x.split(',')
+                    point_table[temp_user_info[0]] = temp_user_info[1]
             elif dic["TYPE"] == "POOL_IMAGES":
-				# TO DO
-                pass
+                # point table format : image1,image2,image3, ...
+                pool_images.clear()
+                temp_pool_images = dic["PAYLOAD"]
+                pool_images_list = temp_pool_images.split(',')
+                for x in pool_images_list:
+                    pool_images.append(x)
             elif dic["TYPE"] == "DESCRIPTION":
-              	# TO DO
+                description = dic["PAYLOAD"]
+            else:
                 pass
-            #print("in broadcast")
         except socket.timeout:
             pass
         s.close()
