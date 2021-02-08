@@ -6,8 +6,11 @@
 # 4. goodbye
 
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QLabel
+from PyQt5.QtGui import QIcon, QPixmap
+
 import sys
+import mainWindow
 
 SERVER_IP = ''
 PORT = ''
@@ -31,15 +34,26 @@ def find_my_local_ip():
         s.close()
     return IP
 
-class DixitApp(QtWidgets.QMainWindow, mainView.Ui_MainView):
+class DixitApp(QtWidgets.QMainWindow, mainWindow.Ui_mainWindow):
     def __init__(self, parent=None):
         super(DixitApp, self).__init__(parent)
-        
+    
+        pixmap = QPixmap('row-1-col-1.jpg')    
+        mainWindow.Ui_mainWindow.dixitCoverImage.setPixmap(pixmap)
+
+
         self.setupUi(self)
 
 def main():
     app = QApplication(sys.argv)
     dixit = DixitApp()
+
+    label = QLabel("self", dixit)
+    pixmap = QPixmap('row-1-col-1.jpg')
+    label.setPixmap(pixmap)
+
+    # Optional, resize window to image size
+
     dixit.show()
     app.exec_()
 
@@ -67,7 +81,7 @@ def conv_to_bytes(message_):
     byte_message = (str(message_)+"\n").encode('utf-8')
     return byte_message
 
-def getDescription();
+def getDescription():
 
     pass
 
