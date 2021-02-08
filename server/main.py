@@ -51,6 +51,7 @@ description = ''
 online_users = {}
 image_votes = {}
 turn_points = {}
+ready_users = []
 # holds image_name: is_sent(Boolean) pairs
 deck = {}
 
@@ -74,12 +75,17 @@ def listen_tcp():
                         if dic["TYPE"] == "STORYTELLER_IMAGE":
                             storyteller_image = {dic["MY_IP"]: dic["PAYLOAD"]}
                             pool_images[dic["MY_IP"]] = dic["PAYLOAD"]
+                        elif dic["TYPE"] == "DISCOVER":
+                            if len(online_users) < 6:
+                                online_users[dic["MY_IP"]] = dic["NAME"]
                         elif dic["TYPE"] == "CHOSEN_IMAGE":
                             pool_images[dic["MY_IP"]] = dic["PAYLOAD"]
                         elif dic["TYPE"] == "DESCRIPTION":
                             description = dic["PAYLOAD"]
                         elif dic["TYPE"] == "IMAGE_VOTE":
                             image_votes[dic["MY_IP"]] = dic["PAYLOAD"]
+                        elif dic["TYPE"] == "READY":
+                            ready_users.append(dic["MY_IP"])
                         elif dic["TYPE"] == "GOODBYE":
                             del online_users[dic["MY_IP"]]
                             # send a goodbye message to server via TCP.
@@ -218,6 +224,15 @@ def send_TCP(type_, payload_, dest_ip_, dest_port_):
         print("unexpected offline client detected")
 
 # GAME LOGIC
+while len(online_users) < 4:
+    time.sleep(2)
+    broadcast_online_users()
+
+while len(online_users) != len(ready_users):
+    time.sleep(2)
+
+# everything is set, start the rounds
+broadcast_next_turn()
 # create the deck from the card directory
 init_whole_deck()
 
