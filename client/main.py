@@ -6,9 +6,10 @@
 # 4. goodbye
 
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QLabel, QTableWidgetItem
 from PyQt5.QtGui import QIcon, QPixmap
 
+import time
 import sys
 import mainWindow
 
@@ -16,7 +17,7 @@ SERVER_IP = ''
 PORT = ''
 MY_LOCAL_IP = ''
 MY_NAME = ''
-user_list = {}
+online_users = {}
 deck_list = []
 story_teller_ip = ''
 point_table = {} # {user_ip=point, ...}
@@ -33,24 +34,23 @@ def find_my_local_ip():
     finally:
         s.close()
     return IP
+control = 0
 
-class DixitApp(QtWidgets.QMainWindow, mainWindow.Ui_mainWindow):
+class DixitApp(QtWidgets.QMainWindow, mainWindow.Ui_MainWindow):
     def __init__(self, parent=None):
         super(DixitApp, self).__init__(parent)
-    
-        pixmap = QPixmap('row-1-col-1.jpg')    
-        mainWindow.Ui_mainWindow.dixitCoverImage.setPixmap(pixmap)
-
-
+        
         self.setupUi(self)
+
 
 def main():
     app = QApplication(sys.argv)
     dixit = DixitApp()
+    rowPosition = dixit.onlineUsers.rowCount()
+    dixit.onlineUsers.insertRow(rowPosition)
 
-    label = QLabel("self", dixit)
-    pixmap = QPixmap('row-1-col-1.jpg')
-    label.setPixmap(pixmap)
+    dixit.onlineUsers.setItem(rowPosition , 0, QTableWidgetItem("name of user "+str(rowPosition+1)))
+    dixit.onlineUsers.setItem(rowPosition , 1, QTableWidgetItem("IP of user "+str(rowPosition+1)))
 
     # Optional, resize window to image size
 
@@ -59,6 +59,10 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+def changeControl():
+    time.sleep(2)
+    control=1
 
 message = {
     "NAME": "",
@@ -156,7 +160,7 @@ def listen_udp():
                 temp_user_info_list = temp_user_list.split('_?_')
                 for x in temp_user_info_list:
                     temp_user_info = x.split(',')
-                    user_list[temp_user_info[0]] = temp_user_info[1]
+                    online_users[temp_user_info[0]] = temp_user_info[1]
             elif dic["TYPE"] == "USER_LEFT":
                 # user left format : user_ip
                 left_user_ip = dic["PAYLOAD"]
