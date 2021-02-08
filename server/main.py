@@ -72,6 +72,7 @@ def listen_tcp():
 # deck init / herkese 6 image gönder
 for storyteller in user_list:
     storyteller_image = ''
+    description = ''
     pool_images.clear()
     # start of round.
     # send UDP / tell who storyteller is to everyone.
@@ -79,19 +80,19 @@ for storyteller in user_list:
     time.sleep(5)
     
     # wait for storyteller's image and description.
-    while storyteller_image == '': # description and image arrive at the same time.
-        time.sleep(1)
+    while storyteller_image == '' or description == '': # description and image arrive at the same time.
+        time.sleep(0.2)
         pass # if server waits more than 30 sec, storyteller duty passes on to the next client.
     pool_images[storyteller] = storyteller_image
 
     # send udp / send the description, wait for chosen images from other clients
     while len(pool_images) != len(online_users):
-        time.sleep(1)
+        time.sleep(0.2)
         pass
 
     # send udp / send pool images to clients in shuffled order.
     while len(image_votes) != len(online_users)-1:
-        time.sleep(1)
+        time.sleep(0.2)
         pass
 
 
@@ -108,7 +109,8 @@ for storyteller in user_list:
 
     elif len(right_voters) == 0:
         for user in online_users.keys():
-            turn_points[user] = 0
+            turn_points[user] = 2
+        turn_points[storyteller] = 0
 
     else:
         for user in online_users:
