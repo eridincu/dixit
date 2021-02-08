@@ -6,11 +6,18 @@
 # 4. goodbye
 
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton
-import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QLabel, QTableWidgetItem
+from PyQt5.QtGui import QIcon, QPixmap
 
-MY_LOCAL_IP = ""
-user_list = {}
+import time
+import sys
+import mainWindow
+
+SERVER_IP = ''
+PORT = ''
+MY_LOCAL_IP = ''
+MY_NAME = ''
+online_users = {}
 deck_list = []
 story_teller_ip = ''
 point_table = {} # {user_ip=point, ...}
@@ -27,26 +34,36 @@ def find_my_local_ip():
     finally:
         s.close()
     return IP
+control = 0
 
-def window():
+class DixitApp(QtWidgets.QMainWindow, mainWindow.Ui_MainWindow):
+    def __init__(self, parent=None):
+        super(DixitApp, self).__init__(parent)
+        
+        self.setupUi(self)
+
+
+def main():
     app = QApplication(sys.argv)
-    main_window = QMainWindow()
-    main_window.setGeometry(500, 500, 500, 500)
-    main_window.setWindowTitle("Dixit Game!")
-    
-    
-    new_push_button = QPushButton("reset", main_window)
-    new_push_button.setGeometry(150, 20, 80, 30)
-    
-    main_window.show()
-    sys.exit(app.exec_())
+    dixit = DixitApp()
+    rowPosition = dixit.onlineUsers.rowCount()
+    dixit.onlineUsers.insertRow(rowPosition)
 
+    dixit.onlineUsers.setItem(rowPosition , 0, QTableWidgetItem("name of user "+str(rowPosition+1)))
+    dixit.onlineUsers.setItem(rowPosition , 1, QTableWidgetItem("IP of user "+str(rowPosition+1)))
 
-def changeWindow(win):
-    win.hide()
+    # Optional, resize window to image size
 
-print("hello ")
-window()
+    dixit.show()
+    app.exec_()
+
+if __name__ == '__main__':
+    main()
+
+def changeControl():
+    time.sleep(2)
+    control=1
+
 message = {
     "NAME": "",
     "MY_IP": "",
@@ -54,10 +71,10 @@ message = {
     "PAYLOAD": ""
     }
 
-def get_packet(name, sender_ip, packet_type, payload=''):
+def get_packet(packet_type, payload=''):
     packet = {
-        'NAME': name,
-        'MY_IP': sender_ip,
+        'NAME': MY_NAME,
+        'MY_IP': MY_LOCAL_IP,
         'TYPE': packet_type,
         'PAYLOAD': payload,
     }
@@ -67,6 +84,26 @@ def get_packet(name, sender_ip, packet_type, payload=''):
 def conv_to_bytes(message_):
     byte_message = (str(message_)+"\n").encode('utf-8')
     return byte_message
+
+def getDescription():
+
+    pass
+
+def chooseImage():
+    
+    pass
+
+def displayImage():
+
+    pass
+
+def voteImage():
+
+    pass
+
+def updatePointTable():
+
+    pass
 
 def listen_tcp():
     while(True):
@@ -100,7 +137,6 @@ def listen_tcp():
             s.close()
 
 
-
 def listen_udp():
     while(True):
         #print("in broadcast")
@@ -124,14 +160,25 @@ def listen_udp():
                 temp_user_info_list = temp_user_list.split('_?_')
                 for x in temp_user_info_list:
                     temp_user_info = x.split(',')
-                    user_list[temp_user_info[0]] = temp_user_info[1]
+                    online_users[temp_user_info[0]] = temp_user_info[1]
             elif dic["TYPE"] == "USER_LEFT":
                 # user left format : user_ip
                 left_user_ip = dic["PAYLOAD"]
                 del user_list[left_user_ip]
             elif dic["TYPE"] == "STORYTELLER":
                 # story teller fomat : story_teller_ip
+                # start of a new round
                 story_teller_ip = dic["PAYLOAD"]
+                # display images with qt
+                # display the storyteller's name with qt
+                if story_teller_ip == MY_LOCAL_IP:
+                    image_, description_ = chooseImage()  # returns name and description of the image.
+                    send_TCP("STORYTELLER_IMAGE", image_)
+                    send_TCP("DESCRIPTION", description_)
+                else:
+                    # do nothing
+                    pass
+
             elif dic["TYPE"] == "POINT_TABLE":
                 # point table format : user_ip1,point1_?_user_ip2,point2_?_...
                 temp_point_table = dic["PAYLOAD"]
@@ -139,6 +186,7 @@ def listen_udp():
                 for x in temp_user_point_list:
                     temp_user_info = x.split(',')
                     point_table[temp_user_info[0]] = temp_user_info[1]
+                updatePointTable()
             elif dic["TYPE"] == "POOL_IMAGES":
                 # point table format : image1,image2,image3, ...
                 pool_images.clear()
@@ -146,10 +194,36 @@ def listen_udp():
                 pool_images_list = temp_pool_images.split(',')
                 for x in pool_images_list:
                     pool_images.append(x)
+                if story_teller_ip != MY_LOCAL_IP:
+                    voted_image = voteImage()
+                    send_TCP("IMAGE_VOTE", voted_image)
             elif dic["TYPE"] == "DESCRIPTION":
                 description = dic["PAYLOAD"]
+                if story_teller_ip != MY_LOCAL_IP:
+                    image_ = chooseImage()
+                    send_TCP("CHOSEN_IMAGE", image_)
+                else:
+                    # do nothing
+                    pass
             else:
                 pass
         except socket.timeout:
             pass
         s.close()
+
+
+def send_TCP(type_, payload_):
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(5)
+            s.connect((SERVER_IP, PORT))
+            packet = get_packet(type_, payload_)
+            packet_bytes = json.dumps((packet)).encode('utf-8')
+            s.send(packet_bytes)
+            print("ME: "+ messagePayload)
+            s.close()
+    except ConnectionRefusedError:
+        print("unexpected offline client detected")
+
+
+
