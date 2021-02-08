@@ -12,6 +12,9 @@ from PyQt5.QtGui import QIcon, QPixmap
 import time
 import sys
 import mainWindow
+import socket
+import select
+import json
 
 SERVER_IP = ''
 PORT = ''
@@ -109,7 +112,7 @@ def listen_tcp():
     while(True):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            s.bind((HOST, PORT))
+            s.bind((SERVER_IP, PORT))
             s.settimeout(5)
             try:
                 s.listen()
@@ -164,7 +167,7 @@ def listen_udp():
             elif dic["TYPE"] == "USER_LEFT":
                 # user left format : user_ip
                 left_user_ip = dic["PAYLOAD"]
-                del user_list[left_user_ip]
+                del online_users[left_user_ip]
             elif dic["TYPE"] == "STORYTELLER":
                 # story teller fomat : story_teller_ip
                 # start of a new round
@@ -211,6 +214,8 @@ def listen_udp():
             pass
         s.close()
 
+def goodbye():
+    send_TCP("GOODBYE", "")
 
 def send_TCP(type_, payload_):
     try:
@@ -220,7 +225,7 @@ def send_TCP(type_, payload_):
             packet = get_packet(type_, payload_)
             packet_bytes = json.dumps((packet)).encode('utf-8')
             s.send(packet_bytes)
-            print("ME: "+ messagePayload)
+            print("ME: "+ payload_)
             s.close()
     except ConnectionRefusedError:
         print("unexpected offline client detected")
