@@ -9,7 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QAbstractItemView
+from PyQt5.QtWidgets import QAbstractItemView, QListView, QPlainTextEdit
 
 
 class Ui_MainWindow(object):
@@ -24,12 +24,36 @@ class Ui_MainWindow(object):
         self.backgroundImage.setPixmap(pixmap)
         self.resize(self.backgroundImage.width(), self.backgroundImage.height())
         self.backgroundImage.setObjectName("backgroundImage")
+
+        self.poolImagesList = QtWidgets.QListWidget(self.centralwidget)
+        self.poolImagesList.setGeometry(QtCore.QRect(300, 150, 566, 160))
+        self.poolImagesList.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+        self.poolImagesList.setObjectName("poolImagesList")
+        self.poolImagesList.setWindowTitle("pool images")
+        self.poolImagesList.setViewMode(QListView.IconMode)
+        self.poolImagesList.setIconSize(QtCore.QSize(128, 128))
+        self.poolImagesList.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.poolImagesList.setDragDropMode(QAbstractItemView.NoDragDrop) 
+
+        self.deckImagesList = QtWidgets.QListWidget(self.centralwidget)
+        self.deckImagesList.setGeometry(QtCore.QRect(200, 550, 566, 139))
+        self.deckImagesList.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+        self.deckImagesList.setObjectName("deckImagesList")
+        self.deckImagesList.setWindowTitle("deck images")
+        self.deckImagesList.setViewMode(QListView.IconMode)
+        self.deckImagesList.setIconSize(QtCore.QSize(128, 128))
+        self.deckImagesList.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.deckImagesList.setDragDropMode(QAbstractItemView.NoDragDrop) 
+
+
         self.onlineUsers = QtWidgets.QTableWidget(0, 2, self.centralwidget)
-        self.onlineUsers.setGeometry(QtCore.QRect(850, 450, 300, 200))
+        self.onlineUsers.setGeometry(QtCore.QRect(950, 500, 300, 200))
         self.onlineUsers.setSelectionMode(QAbstractItemView.NoSelection)
         self.onlineUsers.setStyleSheet("QTableWidget {background-color: transparent;}"
             "QTableWidget {border: 0;}"
-            "QHeaderView::section {background-color: transparent;}"
+            "QHeaderView::section {background-color: lightblue;}"
             "QHeaderView {background-color: transparent;}"
             "QTableCornerButton::section {background-color: transparent;}")
         self.onlineUsers.setShowGrid(False)
@@ -37,8 +61,40 @@ class Ui_MainWindow(object):
         self.onlineUsers.setObjectName("onlineUsers")
         self.onlineUsers.setWindowTitle("online users")
         self.onlineUsers.setHorizontalHeaderLabels(('Name', 'IP'))
+
+        self.pointTable = QtWidgets.QTableWidget(0, 2, self.centralwidget)
+        self.pointTable.setGeometry(QtCore.QRect(950, 50, 300, 200))
+        self.pointTable.setSelectionMode(QAbstractItemView.NoSelection)
+        self.pointTable.setStyleSheet("QTableWidget {background-color: transparent;}"
+            "QTableWidget {border: 0;}"
+            "QHeaderView::section {background-color: lightblue;}"
+            "QHeaderView {background-color: transparent;}"
+            "QTableCornerButton::section {background-color: transparent;}")
+        self.pointTable.setShowGrid(False)
+        self.pointTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.pointTable.setObjectName("pointTable")
+        self.pointTable.setWindowTitle("point table")
+        self.pointTable.setHorizontalHeaderLabels(('Name', 'Points'))
+
+        self.descriptionBox = QPlainTextEdit(self.centralwidget)
+        self.descriptionBox.setGeometry(400, 360, 400, 100)
+        self.descriptionBox.setWindowTitle("desctip")
+        
+        self.descriptionBoxLabel = QtWidgets.QLabel(self.centralwidget)
+        self.descriptionBoxLabel.setGeometry(300, 350, 100, 50)
+        self.descriptionBoxLabel.setText("Description: ")
+        self.descriptionBoxLabel.setFont(QtGui.QFont("default",10)) 
+
+        self.messageToClient = QtWidgets.QLabel(self.centralwidget)
+        self.messageToClient.setGeometry(400, 50, 400, 100)
+        self.messageToClient.setFont(QtGui.QFont("default",11)) 
+
+        self.sendImageAndDesc = QtWidgets.QPushButton(self.centralwidget)
+        self.sendImageAndDesc.setGeometry(QtCore.QRect(400, 500, 100, 50))
+        self.sendImageAndDesc.setVisible(False)
+
         self.readyBox = QtWidgets.QCheckBox(self.centralwidget)
-        self.readyBox.setGeometry(QtCore.QRect(530, 460, 121, 20))
+        self.readyBox.setGeometry(QtCore.QRect(1000, 460, 121, 20))
         self.readyBox.setObjectName("readyBox")
         MainWindow.setCentralWidget(self.centralwidget)
 
