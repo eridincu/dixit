@@ -273,6 +273,9 @@ def listen_udp():
                 description = ''
                 dixit.sendImage.setDisabled(False)
                 dixit.sendVote.setDisabled(False)
+                dixit.descriptionBox.setPlainText("")
+                dixit.descriptionDisplay.setText("")
+                pool_images = dict()
                 story_teller_ip = dic["PAYLOAD"]
                 # display images with qt
                 # display the storyteller's name with qt
