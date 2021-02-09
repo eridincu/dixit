@@ -93,6 +93,10 @@ class Ui_MainWindow(object):
         self.sendImageAndDesc.setGeometry(QtCore.QRect(400, 500, 100, 50))
         self.sendImageAndDesc.setVisible(False)
 
+        self.sendVote = QtWidgets.QPushButton(self.centralwidget)
+        self.sendVote.setGeometry(QtCore.QRect(400, 500, 100, 50))
+        self.sendVote.setVisible(False)
+
         self.readyBox = QtWidgets.QCheckBox(self.centralwidget)
         self.readyBox.setGeometry(QtCore.QRect(1000, 460, 121, 20))
         self.readyBox.setObjectName("readyBox")

@@ -9,6 +9,7 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QLabel, QTableWidgetItem, QListWidgetItem
 from PyQt5.QtGui import QIcon, QPixmap
 
+import json
 import time
 import sys
 import mainWindow
@@ -26,9 +27,8 @@ def find_my_local_ip():
     return IP
 
 ready = 0
-SERVER_IP = find_my_local_ip()
+MY_LOCAL_IP = find_my_local_ip()
 PORT = 12345
-MY_LOCAL_IP = ''
 MY_NAME = ''
 online_users = {
     112.32: "fırat",
@@ -158,7 +158,7 @@ def listen_tcp():
     while(True):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            s.bind((HOST, PORT))
+            s.bind((MY_LOCAL_IP, PORT))
             s.settimeout(5)
             try:
                 s.listen()
@@ -171,13 +171,13 @@ def listen_tcp():
                         stri = data.decode('utf-8').rstrip()
                         dic = eval(stri)
                         if dic["TYPE"] == "DECK_IMG":
-                            deck_list.append(dic["PAYLOAD"])
+                            deck_images.append(dic["PAYLOAD"])
                         elif dic["TYPE"] == "DECK_INIT":
                             # image format : image1,image2,...
                             temp_deck = dic["PAYLOAD"]
                             deck_image = temp_deck.split(',')
                             for x in deck_image:
-                                deck_list.append(x)
+                                deck_images.append(x)
                         else:
                             pass
             except socket.timeout:
@@ -203,7 +203,11 @@ def setupUi(isStoryteller, isVoteTime):
         dixit.messageToClient.setText("Please wait for storyteller.")
     if isStoryteller and not isVoteTime:
         dixit.sendImageAndDesc.setText("send image & desc")
+        dixit.sendVote.setVisible(False)
         dixit.sendImageAndDesc.setVisible(True)
+    elif isStoryteller and isVoteTime:
+        dixit.sendImageAndDesc.setVisible(False)
+        dixit.sendVote.setVisible(True)
 
 
 
@@ -235,7 +239,7 @@ def listen_udp():
             elif dic["TYPE"] == "USER_LEFT":
                 # user left format : user_ip
                 left_user_ip = dic["PAYLOAD"]
-                del user_list[left_user_ip]
+                del online_users[left_user_ip]
             elif dic["TYPE"] == "STORYTELLER":
                 # story teller fomat : story_teller_ip
                 # start of a new round
@@ -290,11 +294,11 @@ def send_TCP(type_, payload_):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(5)
-            s.connect((SERVER_IP, PORT))
+            s.connect((MY_LOCAL_IP, PORT))
             packet = get_packet(type_, payload_)
             packet_bytes = json.dumps((packet)).encode('utf-8')
             s.send(packet_bytes)
-            print("ME: "+ messagePayload)
+            print("ME: "+ payload_)
             s.close()
     except ConnectionRefusedError:
         print("unexpected offline client detected")
@@ -329,6 +333,18 @@ def changeReady():
         # send_TCP("READY", "0")
         pass
 
+def sendVotedImage():
+    if len(dixit.poolImagesList.selectedItems()) != 0:
+        selected_pool_image_ = dixit.poolImagesList.selectedItems()[0].whatsThis()
+    else:
+        selected_pool_image_ = ''
+    if selected_pool_image_ != '':
+        dixit.messageToClient.setText("You voted!")
+        send_TCP("IMAGE_VOTE", selected_pool_image_)
+        dixit.sendVote.setDisabled(True)
+    else:
+        dixit.messageToClient.setText("Please vote for a picture...")
+
 def sendImageAndDescription():
     description_ = dixit.descriptionBox.toPlainText()
     if len(dixit.deckImagesList.selectedItems()) != 0:
@@ -352,6 +368,7 @@ def main():
     dixit.descriptionBox.textChanged.connect(descriptionChanged)
     dixit.readyBox.toggled.connect(changeReady)
     dixit.sendImageAndDesc.clicked.connect(sendImageAndDescription)
+    dixit.sendVote.clicked.connect(sendVotedImage)
 
     for user in online_users.keys():
         rowPosition = dixit.onlineUsers.rowCount()
