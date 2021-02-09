@@ -89,13 +89,21 @@ class Ui_MainWindow(object):
         self.messageToClient.setGeometry(400, 50, 400, 100)
         self.messageToClient.setFont(QtGui.QFont("default",11)) 
 
+        self.descriptionDisplay = QtWidgets.QLabel(self.centralwidget)
+        self.descriptionDisplay.setGeometry(400, 360, 400, 100)
+        self.descriptionDisplay.setFont(QtGui.QFont("default",11)) 
+
         self.sendImageAndDesc = QtWidgets.QPushButton(self.centralwidget)
-        self.sendImageAndDesc.setGeometry(QtCore.QRect(400, 500, 100, 50))
+        self.sendImageAndDesc.setGeometry(QtCore.QRect(400, 500, 200, 50))
         self.sendImageAndDesc.setVisible(False)
+        self.sendImageAndDesc.setText("send image and desc")
+
 
         self.sendVote = QtWidgets.QPushButton(self.centralwidget)
-        self.sendVote.setGeometry(QtCore.QRect(400, 500, 100, 50))
+        self.sendVote.setGeometry(QtCore.QRect(900, 200, 100, 50))
         self.sendVote.setVisible(False)
+        self.sendVote.setText("send vote")
+
 
         self.readyBox = QtWidgets.QCheckBox(self.centralwidget)
         self.readyBox.setGeometry(QtCore.QRect(1000, 460, 121, 20))

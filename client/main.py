@@ -27,7 +27,7 @@ def find_my_local_ip():
     return IP
 
 ready = 0
-MY_LOCAL_IP = find_my_local_ip()
+MY_LOCAL_IP = 112.32
 PORT = 12345
 MY_NAME = ''
 online_users = {
@@ -46,22 +46,23 @@ deck_images = [
     "row-5-col-1",
     "row-5-col-2",
 ]
-story_teller_ip = ''
+story_teller_ip = 112.32
 point_table = {
     112.32: 12,
     1231.41: 15
 } # {user_ip=point, ...}
-pool_images = [
-    "row-1-col-2",
-    "row-6-col-5",
-    "row-4-col-2",
-    "row-2-col-3",
-    "row-5-col-1",
-    "row-5-col-2",
-] # [image1,image2, ...]
+pool_images = {
+    "row-1-col-2": "???",
+    "row-6-col-5": "???",
+    "row-4-col-2": "???",
+    "row-2-col-3": "???",
+    "row-5-col-1": "???",
+    "row-5-col-2": "???",
+} # [image1,image2, ...]
 description = ''
 selected_pool_image = ''
 selected_deck_image = ''
+story_teller_image = 'row-1-col-2'
 
 
 class DixitApp(QtWidgets.QMainWindow, mainWindow.Ui_MainWindow):
@@ -116,13 +117,13 @@ def displayDeckImages(upside):
 
 def displayPoolImages(upside):
     dixit.poolImagesList.clear()
-    for imageName in pool_images:
+    for imageName in pool_images.keys():
         item = QListWidgetItem()
         item.setWhatsThis(imageName)
         icon = QIcon()
         pixmap = ''
         if upside:
-            item.setText("???")
+            item.setText(pool_images[imageName])
             pixmap = QPixmap("../images/dixit_cards/"+imageName+".jpg")
         else:
             pixmap = QPixmap("../images/dixit-back.jpg")
@@ -195,19 +196,37 @@ def setupUi(isStoryteller, isVoteTime):
     dixit.deckImagesList.setVisible(True)
     dixit.pointTable.setVisible(True)
     dixit.messageToClient.setVisible(True)
-    dixit.descriptionBox.setVisible(isStoryteller)
-    dixit.descriptionBoxLabel.setVisible(isStoryteller)
     if isStoryteller:
-        dixit.messageToClient.setText("Please select an image and give description")
+        if isVoteTime:
+            dixit.messageToClient.setText("Please wait for other players to vote.")
+            dixit.sendImageAndDesc.setVisible(False)
+            dixit.sendVote.setVisible(False)
+            dixit.descriptionBox.setVisible(False)
+            dixit.descriptionBoxLabel.setVisible(True)
+            dixit.descriptionDisplay.setVisible(True)
+        else:
+            dixit.messageToClient.setText("Please choose an image and write description for it.")
+            dixit.sendVote.setVisible(False)
+            dixit.sendImageAndDesc.setVisible(True)
+            dixit.descriptionBox.setVisible(True)
+            dixit.descriptionBoxLabel.setVisible(True)
+            dixit.descriptionDisplay.setVisible(False)
     else:
-        dixit.messageToClient.setText("Please wait for storyteller.")
-    if isStoryteller and not isVoteTime:
-        dixit.sendImageAndDesc.setText("send image & desc")
-        dixit.sendVote.setVisible(False)
-        dixit.sendImageAndDesc.setVisible(True)
-    elif isStoryteller and isVoteTime:
-        dixit.sendImageAndDesc.setVisible(False)
-        dixit.sendVote.setVisible(True)
+        if isVoteTime:
+            dixit.messageToClient.setText("Please vote for an image")
+            dixit.sendImageAndDesc.setVisible(False)
+            dixit.sendVote.setVisible(True)
+            dixit.descriptionBoxLabel.setVisible(True)
+            dixit.descriptionDisplay.setVisible(True)
+            dixit.descriptionBox.setVisible(False)
+        else:
+            dixit.messageToClient.setText("Please wait for the storyteller to choose an image.")
+            dixit.sendVote.setVisible(False)
+            dixit.sendImageAndDesc.setVisible(False)   
+            dixit.descriptionBoxLabel.setVisible(False)
+            dixit.descriptionDisplay.setVisible(False)    
+            dixit.descriptionBox.setVisible(False)
+        
 
 
 
@@ -246,15 +265,7 @@ def listen_udp():
                 story_teller_ip = dic["PAYLOAD"]
                 # display images with qt
                 # display the storyteller's name with qt
-                if story_teller_ip == MY_LOCAL_IP:
-                    setupUi(1, 0)
-                    image_, description_ = chooseImage()  # returns name and description of the image.
-                    send_TCP("STORYTELLER_IMAGE", image_)
-                    send_TCP("DESCRIPTION", description_)
-                else:
-                    setupUi(0, 0)
-                    # do nothing
-                    pass
+                setupUi(story_teller_ip == MY_LOCAL_IP, 0)
 
             elif dic["TYPE"] == "POINT_TABLE":
                 # point table format : user_ip1,point1_?_user_ip2,point2_?_...
@@ -268,21 +279,30 @@ def listen_udp():
                 # point table format : image1,image2,image3, ...
                 pool_images.clear()
                 temp_pool_images = dic["PAYLOAD"]
-                pool_images_list = temp_pool_images.split(',')
-                for x in pool_images_list:
-                    pool_images.append(x)
-                if story_teller_ip != MY_LOCAL_IP:
-                    voted_image = voteImage()
-                    send_TCP("IMAGE_VOTE", voted_image)
+                temp_pool_images_list = temp_pool_images.split(',')
+                for x in temp_pool_images_list:
+                    if story_teller_ip == MY_LOCAL_IP and x == story_teller_image:
+                        pool_images[x] = MY_NAME + "'s img"
+                    else:
+                        pool_images[x] = "???"
+                setupUi(story_teller_ip == MY_LOCAL_IP, 1)
             elif dic["TYPE"] == "DESCRIPTION":
                 description = dic["PAYLOAD"]
-                dixit.descriptionBox.setPlainText(description)
+                dixit.descriptionDisplay.setPlainText(description)
                 if story_teller_ip != MY_LOCAL_IP:
                     image_ = chooseImage()
                     send_TCP("CHOSEN_IMAGE", image_)
                 else:
                     # do nothing
                     pass
+            elif dic["TYPE"] == "USER_IMAGE_PAIRS":
+                pool_images.clear()
+                temp_pool_images = dic["PAYLOAD"]
+                temp_pool_images_list = temp_pool_images.split('_?_')
+                for x in temp_pool_images_list:
+                    temp_pool_image_info = x.split(",")
+                    pool_images[temp_pool_image_info[0]] = temp_pool_image_info[1]
+                setupUi(story_teller_ip == MY_LOCAL_IP, 1)
             else:
                 pass
         except socket.timeout:
@@ -319,7 +339,6 @@ def poolImageSelectionChanged():
 def deckImageSelectionChanged():
     selected_deck_image = dixit.deckImagesList.selectedItems()[0].whatsThis()
     print(selected_deck_image)
-    print(description)
 
 
 
@@ -327,7 +346,7 @@ def changeReady():
     ready = dixit.readyBox.isChecked()
     dixit.readyBox.setDisabled(True)
     if ready:
-        setupUi(1, 0)
+        setupUi(1, 1)
         # send_TCP("READY", "1")
     else:
         # send_TCP("READY", "0")
@@ -354,7 +373,8 @@ def sendImageAndDescription():
     print("deck image", selected_deck_image_ )
     print("des", description_)
     if selected_deck_image_ != '' and description_ != '':
-        dixit.messageToClient.setText("image and description sent, please wait for other users to send their images.")
+        story_teller_image = selected_deck_image_
+        dixit.messageToClient.setText("image and description sent")
         send_TCP("STORYTELLER_IMAGE", selected_deck_image_)
         send_TCP("DESCRIPTION", description_)
     else: 
@@ -383,8 +403,8 @@ def main():
     dixit.pointTable.setVisible(False)
     dixit.descriptionBox.setVisible(False)
     dixit.descriptionBoxLabel.setVisible(False)
-
-    
+    dixit.descriptionDisplay.setVisible(False)
+    dixit.descriptionDisplay.setText("asdadfsgfsakfsmgksfa sad fafs ga.fg apdkfmg af")
 
     # Optional, resize window to image size
 
