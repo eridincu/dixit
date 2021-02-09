@@ -119,6 +119,8 @@ def voteImage():
 
 def updatePointTable():
     for userID in turn_points.keys():
+        if not point_table[userID]:
+            point_table[userID] = 0
         point_table[userID] = point_table[userID] + turn_points[userID]
     displayPointTable()
 

@@ -141,7 +141,7 @@ def broadcast_pool_images():
 def broadcast_point_table():
     payload = ""
     for key in turn_points.keys():
-        payload = payload + key + "," + turn_points[key] + "_?_"
+        payload = payload + key + "," + str(turn_points[key]) + "_?_"
     if len(payload) > 0:
         payload = payload[:-3]
     send_UDP("POINT_TABLE", payload)
