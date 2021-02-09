@@ -40,7 +40,7 @@ There were a few challenges during the implementation on our side.
 
 
 - Workload Balancing:
-  - We 
+  - We peer-programmed most of the code due to the remote situation, and because of the current situation in our university, all members weren't be available all the time. However, all team members gave their full effort to finish the project and peer-programming helped everyone to contribute to the project equally.
 - Network: 
   - We decided to have server-based gameplay and handle game logic such as the point calculation, assigning the storyteller and giving players a deck of cards etc. in the hosting server. Using this design, the server knows all the information about the state of the game and informs players about them when necessary. The communication of common information(such as the images on the table, round points earned in each turn by each user etc.) between server and players about game is made using UDP packets to decrease the latency and for the sake of simplicity; whereas each player receives their decks in TCP packets since that information shouldn't be public. Users don't need to communicate any information with each other during the game since the server informs players about the state of the game; therefore, users only communicate with the server using TCP packets. By centralizing the game logic in one place, the game logic is consistent. 
   - Another challenge was to distribute cards among the players. We decided to have users keeping all the pictures in their local storage instead of sharing images among all the players each round, because that way the game will use less network traffic and the game can flow faster. Instead of sharing images, the server shares the names of the images with the players. 
