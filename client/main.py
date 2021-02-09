@@ -17,6 +17,7 @@ import mainWindow
 import socket
 import select
 import threading
+import os
 
 def find_my_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -32,7 +33,7 @@ ready = 0
 SERVER_IP = '192.168.1.39'
 MY_LOCAL_IP = find_my_local_ip()
 PORT = 12345
-MY_NAME = 'client1'
+MY_NAME = os.uname().nodename
 online_users = dict()
 turn_points = dict()
 deck_images = []
@@ -126,7 +127,7 @@ def updatePointTable():
     displayPointTable()
 
 def displayPointTable():
-    dixit.pointTable.clear()
+    dixit.pointTable.setRowCount(0)
     for user in point_table.keys():
         rowPosition = dixit.pointTable.rowCount()
 
