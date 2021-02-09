@@ -99,6 +99,11 @@ class Ui_MainWindow(object):
         self.sendImageAndDesc.setText("send image and desc")
 
 
+        self.sendImage = QtWidgets.QPushButton(self.centralwidget)
+        self.sendImage.setGeometry(QtCore.QRect(400, 500, 200, 50))
+        self.sendImage.setVisible(False)
+        self.sendImage.setText("send image")
+
         self.sendVote = QtWidgets.QPushButton(self.centralwidget)
         self.sendVote.setGeometry(QtCore.QRect(900, 200, 100, 50))
         self.sendVote.setVisible(False)

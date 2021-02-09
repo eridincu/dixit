@@ -268,9 +268,12 @@ def listen_udp():
             elif dic["TYPE"] == "DESCRIPTION":
                 global description
                 description = dic["PAYLOAD"]
-                dixit.descriptionDisplay.setPlainText(description)
+                dixit.descriptionDisplay.setText(description)
                 if story_teller_ip != MY_LOCAL_IP:
-                    setupUi(0, 0)
+                    dixit.messageToClient.setText("choose image.")
+                    dixit.sendImage.setVisible(True)
+                    dixit.descriptionBoxLabel.setVisible(True)
+                    dixit.descriptionDisplay.setVisible(True)
                 else:
                     pass
             elif dic["TYPE"] == "USER_IMAGE_PAIRS":
@@ -354,11 +357,27 @@ def sendImageAndDescription():
     if selected_deck_image_ != '' and description_ != '':
         story_teller_image = selected_deck_image_        
         send_TCP("STORYTELLER_IMAGE", selected_deck_image_)
+        time.sleep(0.2)
         send_TCP("DESCRIPTION", description_)
         dixit.messageToClient.setText("Please wait for other players to choose their image")
         dixit.descriptionDisplay.setVisible(True)
         dixit.descriptionDisplay.setText(description_)
         dixit.descriptionBox.setVisible(False)
+
+def sendImageAndDescription():
+    if len(dixit.deckImagesList.selectedItems()) != 0:
+        selected_deck_image_ = dixit.deckImagesList.selectedItems()[0].whatsThis()
+    else:
+        selected_deck_image_ = ''
+    print("deck image", selected_deck_image_ )
+    if selected_deck_image_ != '':
+        send_TCP("STORYTELLER_IMAGE", selected_deck_image_)
+        dixit.messageToClient.setText("Please wait for other players to choose their image")
+        dixit.sendImage.setDisabled(True)
+        deck_images.remove(selected_deck_image_)
+        pool_images[selected_deck_image_] = "MY_IMAGE"
+        displayDeckImages(1)
+        displayPoolImages(1)
 
     else: 
         dixit.messageToClient.setText("PLEASE SELECT AN IMAGE AND WRITE A DESCRIPTION!")
