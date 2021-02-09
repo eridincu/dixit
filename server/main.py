@@ -46,14 +46,14 @@ MY_LOCAL_IP = ''
 MY_NAME = ''
 storyteller = ''
 storyteller_image = ''
-pool_images = {}
+pool_images = dict()
 description = ''
-online_users = {}
-image_votes = {}
-turn_points = {}
+online_users = dict()
+image_votes = dict()
+turn_points = dict()
 ready_users = []
 # holds image_name: is_sent(Boolean) pairs
-deck = {}
+deck = dict()
 
 
 def listen_tcp():
@@ -222,6 +222,12 @@ def send_TCP(type_, payload_, dest_ip_, dest_port_):
             s.close()
     except ConnectionRefusedError:
         print("unexpected offline client detected")
+
+listen_TCP_thread = threading.Thread(target=listen_tcp, name='tcp-thread', daemon=True)
+listen_UDP_thread = threading.Thread(target=listen_udp, name='udp-thread', daemon=True)
+
+listen_TCP_thread.start()
+listen_UDP_thread.start()
 
 # GAME LOGIC
 while len(online_users) < 4:

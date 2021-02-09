@@ -15,6 +15,7 @@ import sys
 import mainWindow
 import socket
 import select
+import threading
 
 def find_my_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -27,42 +28,20 @@ def find_my_local_ip():
     return IP
 
 ready = 0
-MY_LOCAL_IP = 112.32
+SERVER_IP = '192.168.1.34'
+MY_LOCAL_IP = find_my_local_ip()
 PORT = 12345
-MY_NAME = ''
-online_users = {
-    112.32: "fırat",
-    1231.41: "faruk"
-}
-turn_points = {
-    112.32: 4,
-    1231.41: 1
-}
-deck_images = [
-    "row-1-col-2",
-    "row-6-col-5",
-    "row-4-col-2",
-    "row-2-col-3",
-    "row-5-col-1",
-    "row-5-col-2",
-]
-story_teller_ip = 112.32
-point_table = {
-    112.32: 12,
-    1231.41: 15
-} # {user_ip=point, ...}
-pool_images = {
-    "row-1-col-2": "???",
-    "row-6-col-5": "???",
-    "row-4-col-2": "???",
-    "row-2-col-3": "???",
-    "row-5-col-1": "???",
-    "row-5-col-2": "???",
-} # [image1,image2, ...]
+MY_NAME = 'temp'
+online_users = dict()
+turn_points = dict()
+deck_images = []
+story_teller_ip = ''
+point_table = dict()
+pool_images = dict()
 description = ''
 selected_pool_image = ''
 selected_deck_image = ''
-story_teller_image = 'row-1-col-2'
+story_teller_image = ''
 
 
 class DixitApp(QtWidgets.QMainWindow, mainWindow.Ui_MainWindow):
@@ -314,7 +293,7 @@ def send_TCP(type_, payload_):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(5)
-            s.connect((MY_LOCAL_IP, PORT))
+            s.connect((SERVER_IP, PORT))
             packet = get_packet(type_, payload_)
             packet_bytes = json.dumps((packet)).encode('utf-8')
             s.send(packet_bytes)
@@ -323,10 +302,16 @@ def send_TCP(type_, payload_):
     except ConnectionRefusedError:
         print("unexpected offline client detected")
 
-
+send_TCP("DISCOVER", "")
 
 app = QApplication(sys.argv)
 dixit = DixitApp()
+
+listen_TCP_thread = threading.Thread(target=listen_tcp, name='tcp-thread', daemon=True)
+listen_UDP_thread = threading.Thread(target=listen_udp, name='udp-thread', daemon=True)
+
+listen_TCP_thread.start()
+listen_UDP_thread.start()
 
 def descriptionChanged():
     description = dixit.descriptionBox.toPlainText()
