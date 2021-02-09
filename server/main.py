@@ -28,6 +28,7 @@ import time
 import random
 import socket
 import json
+import threading
 from os import listdir
 from os.path import isfile, join
 
@@ -73,15 +74,19 @@ def listen_tcp():
                         stri = data.decode('utf-8').rstrip()
                         dic = eval(stri)
                         if dic["TYPE"] == "STORYTELLER_IMAGE":
-                            storyteller_image = {dic["MY_IP"]: dic["PAYLOAD"]}
+                            global storyteller_image
+                            storyteller_image = dic["PAYLOAD"]
                             pool_images[dic["MY_IP"]] = dic["PAYLOAD"]
+                            print("storyteller image arrived.", storyteller_image)
                         elif dic["TYPE"] == "DISCOVER":
                             if len(online_users) < 6:
                                 online_users[dic["MY_IP"]] = dic["NAME"]
                         elif dic["TYPE"] == "CHOSEN_IMAGE":
                             pool_images[dic["MY_IP"]] = dic["PAYLOAD"]
                         elif dic["TYPE"] == "DESCRIPTION":
+                            global description 
                             description = dic["PAYLOAD"]
+                            print("description arrived.", description)
                         elif dic["TYPE"] == "IMAGE_VOTE":
                             image_votes[dic["MY_IP"]] = dic["PAYLOAD"]
                         elif dic["TYPE"] == "READY":
@@ -160,8 +165,9 @@ def broadcast_next_turn():
 
 def broadcast_online_users():
     payload = ""
+    print("len: ", len(online_users))
     for key in online_users.keys():
-        payload = key + "," + online_users[key] + "_?_"
+        payload = payload + key + "," + online_users[key] + "_?_"
     if len(payload) > 0:
         # remove last 3 characters _?_
         payload = payload[:-3] 
@@ -173,8 +179,8 @@ def send_image(dest_ip_, dest_port_):
     payload = ""
     found = False
     while not found:
-        image_name, is_sent = random.choice(list(deck.values()))
-        if not is_sent:
+        image_name = random.choice(list(deck.keys()))
+        if not deck[image_name]:
             deck[image_name] = True
             payload = image_name 
             found = True
@@ -185,8 +191,8 @@ def send_init_deck(dest_ip_, dest_port_):
     count = 0
     payload = ""
     while count != 6:
-        image_name, is_sent = random.choice(list(deck.values()))
-        if not is_sent:
+        image_name = random.choice(list(deck.keys()))
+        if not deck[image_name]:
             deck[image_name] = True
             count = count + 1
             payload = payload + image_name + ","
@@ -224,17 +230,16 @@ def send_TCP(type_, payload_, dest_ip_, dest_port_):
         print("unexpected offline client detected")
 
 listen_TCP_thread = threading.Thread(target=listen_tcp, name='tcp-thread', daemon=True)
-listen_UDP_thread = threading.Thread(target=listen_udp, name='udp-thread', daemon=True)
 
 listen_TCP_thread.start()
-listen_UDP_thread.start()
 
 # GAME LOGIC
-while len(online_users) < 4:
+while len(online_users) < 2:
     time.sleep(2)
     broadcast_online_users()
 
 while len(online_users) != len(ready_users):
+    print("ready users: ", ready_users, "online_users: ", online_users)
     time.sleep(2)
 
 # everything is set, start the rounds
@@ -254,8 +259,6 @@ while True:
     i = (i + 1) % len(user_list)
     storyteller = user_list[i]
 
-    storyteller_image = ''
-    description = ''
     pool_images.clear()
     # start of round.
     # send UDP / tell who storyteller is to everyone. -- DONE
@@ -266,10 +269,12 @@ while True:
     start = time.time()
     user_timeout = False
     while storyteller_image == '' or description == '': # description and image arrive at the same time.
-        time.sleep(0.2)
+        print("image: ", storyteller_image, "  desc: ", description)
+        time.sleep(1)
+        print("desc and image not yet arrived.")
         if time.time() - start > 30:
             # if server waits more than 30 sec, storyteller duty passes on to the next client. --  DONE
-            broadcast_next_turn() # ???
+            # broadcast_next_turn() # ???
             user_timeout = True
             break
     # move to next user
