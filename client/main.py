@@ -1,11 +1,3 @@
-
-# SEND TCP:
-
-# 1. selected image
-# 2. storyteller sends description
-# 3. non-storytellers vote image
-# 4. goodbye
-
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QLabel, QTableWidgetItem, QListWidgetItem
 from PyQt5.QtGui import QIcon, QPixmap
@@ -30,7 +22,7 @@ def find_my_local_ip():
     return IP
 
 ready = 0
-SERVER_IP = '192.168.1.39'
+SERVER_IP = '' # PLEASE PROVIDE SERVER_IP
 MY_LOCAL_IP = find_my_local_ip()
 PORT = 12345
 MY_NAME = os.uname().nodename

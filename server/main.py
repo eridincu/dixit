@@ -1,33 +1,8 @@
-# Listen TCP:
-
-# 1. receive selected image from everyone
-# 2. storyteller sends description
-# 3. non-storytellers vote image
-# 4. receive goodbye
-
-# Send TCP:
-
-# 1. send image X6 to everyone.
-# 2. send 1 image at the begining of each round to everyone.
-
-# Send UDP:
-
-# 1. send online users.
-# 2. send left users.
-# 3. send who storyteller is
-# 4. send description
-# 5. send pool images
-# 6. send end of round info:
-#   a. points
-#   b. who picked which image
-#   c. storyteller's image
-#   d. next storyteller?
-# 7. start of new round message
-
 import time
 import random
 import socket
 import json
+import os
 import threading
 from os import listdir
 from os.path import isfile, join
@@ -42,9 +17,10 @@ def find_my_local_ip():
         s.close()
     return IP
 
+user_count = 0 # PLEASE PROVIDE USER COUNT. THE GAME AUTOMATICALLY STARTS WHEN THIS COUNT IS REACHED.
 SERVER_IP = find_my_local_ip()
 MY_LOCAL_IP = ''
-MY_NAME = ''
+MY_NAME = os.uname().nodename
 storyteller = ''
 storyteller_image = ''
 pool_images = dict()
@@ -53,7 +29,6 @@ online_users = dict()
 image_votes = dict()
 turn_points = dict()
 ready_users = []
-# holds image_name: is_sent(Boolean) pairs
 deck = dict()
 
 
@@ -234,7 +209,7 @@ listen_TCP_thread = threading.Thread(target=listen_tcp, name='tcp-thread', daemo
 listen_TCP_thread.start()
 
 # GAME LOGIC
-while len(online_users) < 2:
+while len(online_users) < user_count:
     time.sleep(2)
     broadcast_online_users()
 
