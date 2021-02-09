@@ -328,6 +328,12 @@ def send_TCP(type_, payload_):
 app = QApplication(sys.argv)
 dixit = DixitApp()
 
+listen_TCP_thread = threading.Thread(target=listen_tcp, name='tcp-thread', daemon=True)
+listen_UDP_thread = threading.Thread(target=listen_udp, name='udp-thread', daemon=True)
+
+listen_TCP_thread.start()
+listen_UDP_thread.start()
+
 def descriptionChanged():
     description = dixit.descriptionBox.toPlainText()
     print(description)
