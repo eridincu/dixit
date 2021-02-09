@@ -363,8 +363,12 @@ def sendImageAndDescription():
         dixit.descriptionDisplay.setVisible(True)
         dixit.descriptionDisplay.setText(description_)
         dixit.descriptionBox.setVisible(False)
+        deck_images.remove(selected_deck_image_)
+        pool_images[selected_deck_image_] = "MY_IMAGE"
+        displayDeckImages(1)
+        displayPoolImages(1)
 
-def sendImageAndDescription():
+def sendImage():
     if len(dixit.deckImagesList.selectedItems()) != 0:
         selected_deck_image_ = dixit.deckImagesList.selectedItems()[0].whatsThis()
     else:
@@ -391,6 +395,8 @@ def main():
     dixit.readyBox.toggled.connect(changeReady)
     dixit.sendImageAndDesc.clicked.connect(sendImageAndDescription)
     dixit.sendVote.clicked.connect(sendVotedImage)
+    dixit.sendImage.clicked.connect(sendImage)
+
 
     for user in online_users.keys():
         rowPosition = dixit.onlineUsers.rowCount()
