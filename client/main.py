@@ -255,6 +255,8 @@ def listen_udp():
             stri = msg.decode('utf-8').rstrip()
             dic = eval(stri)
             global description
+            global pool_images
+
             if dic["TYPE"] == "ONLINE_USERS":
                 # user list format : user_ip1,user_name1_?_user_ip2,user_name2_?_...
                 temp_user_list = dic["PAYLOAD"]
@@ -276,6 +278,7 @@ def listen_udp():
                 dixit.descriptionBox.setPlainText("")
                 dixit.descriptionDisplay.setText("")
                 pool_images = dict()
+                displayPoolImages(0)
                 story_teller_ip = dic["PAYLOAD"]
                 # display images with qt
                 # display the storyteller's name with qt
