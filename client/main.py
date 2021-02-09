@@ -119,12 +119,13 @@ def voteImage():
 
 def updatePointTable():
     for userID in turn_points.keys():
-        if not point_table[userID]:
+        if userID not in list(point_table.keys()):
             point_table[userID] = 0
-        point_table[userID] = point_table[userID] + turn_points[userID]
+        point_table[userID] = point_table[userID] + int(turn_points[userID])
     displayPointTable()
 
 def displayPointTable():
+    dixit.pointTable.clear()
     for user in point_table.keys():
         rowPosition = dixit.pointTable.rowCount()
 
@@ -236,6 +237,7 @@ def listen_udp():
                 for x in temp_user_info_list:
                     temp_user_info = x.split(',')
                     online_users[temp_user_info[0]] = temp_user_info[1]
+                displayOnlineUsers()
             elif dic["TYPE"] == "USER_LEFT":
                 # user left format : user_ip
                 left_user_ip = dic["PAYLOAD"]
@@ -388,18 +390,7 @@ def sendImage():
     else: 
         dixit.messageToClient.setText("PLEASE SELECT AN IMAGE AND WRITE A DESCRIPTION!")
 
-
-def main():
-
-    dixit.deckImagesList.itemSelectionChanged.connect(deckImageSelectionChanged)
-    dixit.poolImagesList.itemSelectionChanged.connect(poolImageSelectionChanged)
-    dixit.descriptionBox.textChanged.connect(descriptionChanged)
-    dixit.readyBox.toggled.connect(changeReady)
-    dixit.sendImageAndDesc.clicked.connect(sendImageAndDescription)
-    dixit.sendVote.clicked.connect(sendVotedImage)
-    dixit.sendImage.clicked.connect(sendImage)
-
-
+def displayOnlineUsers():
     for user in online_users.keys():
         rowPosition = dixit.onlineUsers.rowCount()
 
@@ -408,6 +399,19 @@ def main():
         dixit.onlineUsers.setItem(rowPosition , 0, QTableWidgetItem(online_users[user]))
         dixit.onlineUsers.setItem(rowPosition , 1, QTableWidgetItem(str(user)))
 
+def main():
+
+    # dixit.deckImagesList.itemSelectionChanged.connect(deckImageSelectionChanged)
+    dixit.poolImagesList.itemSelectionChanged.connect(poolImageSelectionChanged)
+    dixit.descriptionBox.textChanged.connect(descriptionChanged)
+    dixit.readyBox.toggled.connect(changeReady)
+    dixit.sendImageAndDesc.clicked.connect(sendImageAndDescription)
+    dixit.sendVote.clicked.connect(sendVotedImage)
+    dixit.sendImage.clicked.connect(sendImage)
+
+    dixit.onlineUsers.setVisible(True)
+
+    displayOnlineUsers()
     dixit.poolImagesList.setVisible(False)
     dixit.deckImagesList.setVisible(False)
     dixit.pointTable.setVisible(False)
