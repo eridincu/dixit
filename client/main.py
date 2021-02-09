@@ -172,7 +172,7 @@ def listen_tcp():
 
 
 def setupUi(isStoryteller, isVoteTime, isStorytellersTurn):
-    displayPoolImages(isVoteTime)
+    displayPoolImages(isVoteTime or isStoryteller)
     displayDeckImages(1)
     displayPointTable()
     dixit.poolImagesList.setVisible(True)
@@ -254,6 +254,7 @@ def listen_udp():
             msg = result[0][0].recv(bufferSize)
             stri = msg.decode('utf-8').rstrip()
             dic = eval(stri)
+            global description
             if dic["TYPE"] == "ONLINE_USERS":
                 # user list format : user_ip1,user_name1_?_user_ip2,user_name2_?_...
                 temp_user_list = dic["PAYLOAD"]
@@ -269,6 +270,9 @@ def listen_udp():
             elif dic["TYPE"] == "STORYTELLER":
                 # story teller fomat : story_teller_ip
                 # start of a new round
+                description = ''
+                dixit.sendImage.setDisabled(False)
+                dixit.sendVote.setDisabled(False)
                 story_teller_ip = dic["PAYLOAD"]
                 # display images with qt
                 # display the storyteller's name with qt
@@ -294,7 +298,6 @@ def listen_udp():
                         pool_images[x] = "???"
                 setupUi(story_teller_ip == MY_LOCAL_IP, 1, 0)
             elif dic["TYPE"] == "DESCRIPTION":
-                global description
                 description = dic["PAYLOAD"]
                 setupUi(MY_LOCAL_IP == story_teller_ip, 0, 0)
             elif dic["TYPE"] == "USER_IMAGE_PAIRS":

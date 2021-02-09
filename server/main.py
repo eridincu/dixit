@@ -333,6 +333,10 @@ while True:
     time.sleep(1)
     # end of turn. --  DONE
     broadcast_next_turn()
+    description = ''
+    storyteller_image = ''
+    image_votes = dict()
+    pool_images = dict()
     time.sleep(3)
     # herkese 1 image gönder -- DONE
     for user in user_list:
