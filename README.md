@@ -1,5 +1,10 @@
 # Dixit
 
+## Contributors
+- Fırat Bulut
+- Hasan Demirkıran
+- Mehmet Erdinç Oğuz
+
 ## About Game
 
 ### Game Description
