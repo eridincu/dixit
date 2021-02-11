@@ -99,7 +99,7 @@ class Ui_MainWindow(object):
         self.sendImageAndDesc.setText("send image and desc")
 
         self.displaySelectedImage = QtWidgets.QLabel(self.centralwidget)
-        self.displaySelectedImage.setGeometry(QtCore.QRect(100, 250, 300, 500))
+        self.displaySelectedImage.setGeometry(QtCore.QRect(25, 50, 300, 500))
         self.displaySelectedImage.setVisible(False)
 
 

@@ -22,7 +22,7 @@ def find_my_local_ip():
     return IP
 
 ready = 0
-SERVER_IP = '' # PLEASE PROVIDE SERVER_IP
+SERVER_IP = '172.20.10.11' # PLEASE PROVIDE SERVER_IP
 MY_LOCAL_IP = find_my_local_ip()
 PORT = 12345
 MY_NAME = os.uname().nodename
@@ -343,17 +343,17 @@ def descriptionChanged():
     description = dixit.descriptionBox.toPlainText()
     print(description)
 
-def poolImageSelectionChanged():
+def poolImageClicked():
     selected_pool_image = dixit.poolImagesList.selectedItems()[0].whatsThis()
-    pixmap = QPixmap("../images/dixit_cards/"+imageName)
-    dixit.displaySelectedImage.setPixmap(pixmap)
+    pixmap = QPixmap("../images/dixit_cards/"+selected_pool_image)
+    dixit.displaySelectedImage.setPixmap(pixmap.scaled(250, 500, QtCore.Qt.KeepAspectRatio))
     dixit.displaySelectedImage.setVisible(True)
     print(selected_pool_image)
 
-def deckImageSelectionChanged():
+def deckImageClicked():
     selected_deck_image = dixit.deckImagesList.selectedItems()[0].whatsThis()
-    pixmap = QPixmap("../images/dixit_cards/"+imageName)
-    dixit.displaySelectedImage.setPixmap(pixmap)
+    pixmap = QPixmap("../images/dixit_cards/"+selected_deck_image)
+    dixit.displaySelectedImage.setPixmap(pixmap.scaled(250, 500, QtCore.Qt.KeepAspectRatio))
     dixit.displaySelectedImage.setVisible(True)
     print(selected_deck_image)
 
@@ -425,8 +425,8 @@ def displayOnlineUsers():
 
 def main():
 
-    # dixit.deckImagesList.itemSelectionChanged.connect(deckImageSelectionChanged)
-    dixit.poolImagesList.itemSelectionChanged.connect(poolImageSelectionChanged)
+    dixit.deckImagesList.itemClicked.connect(deckImageClicked)
+    dixit.poolImagesList.itemClicked.connect(poolImageClicked)
     dixit.descriptionBox.textChanged.connect(descriptionChanged)
     dixit.readyBox.toggled.connect(changeReady)
     dixit.sendImageAndDesc.clicked.connect(sendImageAndDescription)
