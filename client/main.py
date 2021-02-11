@@ -168,6 +168,7 @@ def setupUi(isStoryteller, isVoteTime, isStorytellersTurn):
     displayPoolImages(isVoteTime or isStoryteller)
     displayDeckImages(1)
     displayPointTable()
+    dixit.displaySelectedImage.setVisible(False)
     dixit.poolImagesList.setVisible(True)
     dixit.deckImagesList.setVisible(True)
     dixit.pointTable.setVisible(True)
@@ -344,10 +345,16 @@ def descriptionChanged():
 
 def poolImageSelectionChanged():
     selected_pool_image = dixit.poolImagesList.selectedItems()[0].whatsThis()
+    pixmap = QPixmap("../images/dixit_cards/"+imageName)
+    dixit.displaySelectedImage.setPixmap(pixmap)
+    dixit.displaySelectedImage.setVisible(True)
     print(selected_pool_image)
 
 def deckImageSelectionChanged():
     selected_deck_image = dixit.deckImagesList.selectedItems()[0].whatsThis()
+    pixmap = QPixmap("../images/dixit_cards/"+imageName)
+    dixit.displaySelectedImage.setPixmap(pixmap)
+    dixit.displaySelectedImage.setVisible(True)
     print(selected_deck_image)
 
 

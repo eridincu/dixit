@@ -17,7 +17,7 @@ def find_my_local_ip():
         s.close()
     return IP
 
-user_count = 0 # PLEASE PROVIDE USER COUNT. THE GAME AUTOMATICALLY STARTS WHEN THIS COUNT IS REACHED.
+user_count = 2 # PLEASE PROVIDE USER COUNT. THE GAME AUTOMATICALLY STARTS WHEN THIS COUNT IS REACHED.
 SERVER_IP = find_my_local_ip()
 MY_LOCAL_IP = ''
 MY_NAME = os.uname().nodename
@@ -99,7 +99,7 @@ def broadcast_storyteller(storyteller_):
     print("LOG: storyteller sent,", storyteller_)
 
 def broadcast_description(storyteller_, description_):
-    send_UDP("DESCRIPTION", online_users[storyteller_] + "says that '" + description_ + "'")
+    send_UDP("DESCRIPTION", online_users[storyteller_] + " says that:  '" + description_ + "'")
     print("LOG: Sent the description of", storyteller_, ":", description_)
 
 def broadcast_pool_images():
